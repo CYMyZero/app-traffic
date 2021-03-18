@@ -44,7 +44,7 @@ class BurpExtender(IBurpExtender, ITab):
             ip=""
         subprocess.Popen('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyEnable /t REG_DWORD /d '+on_off+' /f', shell=True)
         subprocess.Popen('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyServer /d "'+ip+'" /f', shell=True)
-        subprocess.Popen('gpupdate/force', shell=True)
+        subprocess.Popen('taskkill /im explorer.exe /f&&ping -n 2 127.0.0.1 > nul&&start c:\windows\explorer.exe', shell=True)
 
     # Layout the UI
     def getUiComponent(self):
