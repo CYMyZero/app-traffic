@@ -1,6 +1,7 @@
 from javax.swing import JPanel, JTextField, JButton, JLabel, BoxLayout
 from burp import IBurpExtender, ITab
 
+import ctypes  
 import subprocess
 
 class BurpExtender(IBurpExtender, ITab):
@@ -34,17 +35,22 @@ class BurpExtender(IBurpExtender, ITab):
     # Tab name
     def getTabCaption(self):
         return 'app-traffic'
+    def set_key(self, ip, value):  
+        
+        INTERNET_OPTION_REFRESH = 37
+        INTERNET_OPTION_SETTINGS_CHANGED = 39
+        internet_set_option = ctypes.windll.Wininet.InternetSetOptionW
 
+        subprocess.Popen('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyEnable /t REG_DWORD /d '+value+' /f', shell=True)
+        subprocess.Popen('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyServer /d "'+ip+'" /f', shell=True)
+
+        internet_set_option(0, INTERNET_OPTION_REFRESH, 0, 0)
+        internet_set_option(0, INTERNET_OPTION_SETTINGS_CHANGED, 0, 0)
     def set_sys_proxy(self,on_off):
         if on_off:
-            on_off="1"
-            ip=self.target_host.text
+            self.set_key('{self.target_host.text}', 1)   
         else:
-            on_off="0"
-            ip=""
-        subprocess.Popen('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyEnable /t REG_DWORD /d '+on_off+' /f', shell=True)
-        subprocess.Popen('reg add "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" /v ProxyServer /d "'+ip+'" /f', shell=True)
-        subprocess.Popen('taskkill /im explorer.exe /f&&ping -n 2 127.0.0.1 > nul&&start c:\windows\explorer.exe', shell=True)
+            self.set_key('', 0)  
 
     # Layout the UI
     def getUiComponent(self):
