@@ -41,7 +41,7 @@ class BurpExtender(IBurpExtender, ITab):
 
     def set_sys_proxy(self,on_off):
         if on_off:
-            self.set_key('{self.target_host.text}', 1)   
+            self.set_key(self.target_host.text, 1)   
         else:
             self.set_key('', 0)  
 
